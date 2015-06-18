@@ -15,7 +15,7 @@ typedef struct tlv {
 #if defined(_WIN32)
 }
     #include "poppack.h"
-#elif defined(__linux__)
+#else
 } __attribute__((packed)) tlv;
 #endif
 
