@@ -21,8 +21,8 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
-#include "tlv.h"
-#include "misc.h"
+#include <tlv.h>
+#include <tlv/misc.h>
 
 #define INT32(a,b,c,d) ((uint32_t)((0xFF&a) \
       | ((0xFF&b)<<8) \
@@ -93,10 +93,11 @@ tlv *tlv_get(char *data, size_t buflen)
   return res;
 }
 
-bool tlv_send(size_t sock, uint32_t typ, uint32_t len, char *val)
+ssize_t tlv_send(size_t sock, uint32_t typ, uint32_t len, char *val)
 {
   char *data;
   tlv msg;
+  ssize_t res;
 
   data = (len > 8192 ? malloc(sizeof(uint32_t)*2+sizeof(char)*len)
       : alloca(sizeof(uint32_t)*2+sizeof(char)*len));
@@ -104,8 +105,8 @@ bool tlv_send(size_t sock, uint32_t typ, uint32_t len, char *val)
   msg.len = htonl(len);
   memcpy(data, &msg, sizeof(uint32_t)*2);
   memcpy(data+sizeof(uint32_t)*2, val, len);
-  send(sock, data, sizeof(uint32_t) * 2 + len, 0);
+  res = send(sock, data, sizeof(uint32_t) * 2 + len, 0);
   if (len > 8192)
     free(data);
-  return true;
+  return res;
 }
